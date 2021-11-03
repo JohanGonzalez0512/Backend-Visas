@@ -3,7 +3,7 @@ const getExpirationDate = require("../helpers/getExpirationDate");
 const { User } = require("../models/index");
 const Restore_password = require("../models/restore_password.model");
 const nodemailer = require('nodemailer');
-
+require('dotenv').config()
 
 const createAndSendCode = async (req, res) => {
 
@@ -33,8 +33,8 @@ const createAndSendCode = async (req, res) => {
                 },
                 port: 587,                                      // port
                 auth: {
-                    user: "jopi05122001@outlook.com",
-                    pass: "Gosling012"
+                    user: process.env.EMAIL_USER_FROM,
+                    pass:process.env.EMAIL_PASSWORD
                 }
               });
               
@@ -43,8 +43,8 @@ const createAndSendCode = async (req, res) => {
                                 Codigo: ${ code }`;
               
               const  mailOptions = {
-                from: 'jopi05122001@outlook.com',
-                to: 'jopi20101@gmail.com',
+                from: process.env.EMAIL_USER_FROM,
+                to: process.env.EMAIL_TO,
                 subject: 'Restaurar contraseña',
                 text: mensaje
               };
@@ -79,7 +79,7 @@ const evaluateCode = async (req, res)=> {
     })
     if (restore_password) {
 
-        
+
     
     }
 }
