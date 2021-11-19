@@ -13,8 +13,8 @@ const validateJWT = ( req, res = response, next) => {
 
     try {
         const { id, username, email } = verify( token,process.env.SECRET_JWT );
-        
-            req.id = id;
+            
+            req.id_user = id;
             req.username = username;
             req.email = email
         

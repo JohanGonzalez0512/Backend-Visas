@@ -30,7 +30,7 @@ expenseRouter.put('/:id', [
 ], updateExpense)
 
 expenseRouter.delete('/:id', [
-    param('id','El id del viaje es obligatorio').isInt().exists({checkNull:true}),
+    param('id','El id del gasto es obligatorio').isInt().exists({checkNull:true}),
     validateFileds,
     validateJWT
 ], deleteExpense)

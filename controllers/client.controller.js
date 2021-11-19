@@ -168,6 +168,129 @@ const getClientsByIdTrip = async (req, res) => {
 
 }
 
+
+
+
+const getClientsByDateTrip = async (req, res) => {
+    try {
+
+        const { date } = req.params
+        let { name } = req.query
+        const trip = await Trip.findOne({
+            where:{ date }
+        })
+        if (!trip) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'No existe un viaje con esa fecha'
+            })
+        }
+        else {
+            const { id_trip } = trip
+            const trip_client = await Trip_client.findAll({
+                where: { id_trip }
+            })
+
+            const id_clients = trip_client.map(petition => {
+                const { id_client } = petition
+                return [
+                    id_client
+                ]
+
+            });
+
+            let clients
+            if (name) {
+                const name2 = nameFixed(name)
+                clients = await Promise.all(id_clients.map(async (id_client) => {
+                    //console.log(id_client);
+                    let visa_info
+                    const client = await Client.findOne({
+                        where: {
+                            id_client,
+                            active: 1,
+                            name: { [Op.regexp]: `^[${name2}]` }
+                        }
+                    })
+                    if (client) {
+
+                        visa_info = await Visa_info.findOne({
+                            where: { id_client }
+                        })
+                        return {
+                            client,
+                            visa_info
+                        }
+                    }
+                    // console.log(client),
+                    // console.log(visa_info)
+
+                }))
+
+                clients = clients.filter(client => client != null)
+
+                return res.status(201).json({
+                    ok: true,
+                    clients,
+                    id_trip
+                })
+
+            } else {
+                try {
+
+                    clients = await Promise.all(id_clients.map(async (id_client) => {
+                        //console.log(id_client);
+                        let visa_info
+                        const client = await Client.findOne({
+                            where: { id_client, active: 1 }
+                        })
+                        if (client) {
+
+                            visa_info = await Visa_info.findOne({
+                                where: { id_client }
+                            })
+                            return {
+                                client,
+                                visa_info
+                            }
+                        }
+                        // console.log(client),
+                        // console.log(visa_info)
+
+                    }))
+
+                    clients = clients.filter(client => client != null)
+
+                    return res.status(201).json({
+                        ok: true,
+                        clients,
+                        id_trip
+                    })
+                } catch (error) {
+                    return res.status(500).json({
+                        ok: false,
+                        msg: 'Hable con el administrador'
+                    })
+                }
+
+            }
+
+
+
+        }
+
+
+    } catch (error) {
+        return res.status(500).json({
+            ok: false,
+            msg: 'Hable con el administrador'
+        })
+    }
+
+}
+
+
+
 const createClientVisa = async (req, res) => {
 
     const { name, last_name, address, birthday, phone_number, id_trip } = req.body;
@@ -336,6 +459,7 @@ const createClientPassport = async (req, res) => {
                     msg: "Un cliente con esos campos ya esta creado."
                 })
             } else {
+                
                 try {
                     await client.update({ name, last_name, address, birthday, phone_number, active: 1 })
                     return res.status(201).json({
@@ -383,6 +507,7 @@ const updateClientPassport = async (req, res) => {
     const { id } = req.params;
     const { name, last_name, address, birthday, phone_number } = req.body;
     const { curp, date_expiration=null, id_certification_type, expired_passport } = req.body;
+    
     try {
         const client = await Client.findByPk(id)
         if (!client) {
@@ -392,7 +517,7 @@ const updateClientPassport = async (req, res) => {
         }
         await client.update({ name, last_name, address, birthday, phone_number });
         const passport_info = await Passport_info.findOne({
-            where: { id_client }
+            where: { id_client:id }
         })
         if (!passport_info) {
             return res.status(404).json({
@@ -411,6 +536,7 @@ const updateClientPassport = async (req, res) => {
             msg: "Cliente actualizado correctamente"
         })
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             ok: false,
             msg: 'Hable con el administrador'
@@ -425,7 +551,7 @@ const updateClientPassport = async (req, res) => {
 const updateClientVisa = async (req, res) => {
     const { id } = req.params;
     const { name, last_name, address, birthday, phone_number } = req.body;
-    const { sheet_visa_payment, copy_passport, right_visa, picture_visa, accepted, date_expiration=null, } = req.body;
+    const { sheet_visa_payment=0, copy_passport=0, right_visa=0, picture_visa=0, accepted=0, date_expiration=null, } = req.body;
     try {
         const client = await Client.findByPk(id)
         if (!client) {
@@ -459,6 +585,7 @@ const updateClientVisa = async (req, res) => {
         })
 
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             ok: false,
             msg: 'Hable con el administrador'
@@ -636,7 +763,8 @@ module.exports = {
     createClientVisaToPassport,
     updateClientVisa,
     updateClientPassport,
-    deleteClient
+    deleteClient,
+    getClientsByDateTrip
 
 
 }

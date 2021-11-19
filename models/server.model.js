@@ -3,7 +3,9 @@ const cors = require('cors');
 const { authRouter, 
         clientRouter, 
         tripRouter, 
-        expenseRouter} = require('../routes/index')
+        expenseRouter,
+        emailRouter,
+        incomeRouter} = require('../routes/index')
 const fileUpload = require('express-fileupload')
 const { db } = require('../db/connection');
 
@@ -19,7 +21,9 @@ class Server {
             auth : '/api/auth',
             clients: '/api/clientes',
             trips: '/api/viajes',
-            expenses: '/api/gastos'
+            expenses: '/api/gastos',
+            emails: '/api/correos',
+            incomes: '/api/pagos'
 
         }
         this.dbConnection();
@@ -63,7 +67,8 @@ class Server {
         this.app.use(this.apiPaths.trips,       tripRouter)
         this.app.use(this.apiPaths.clients,     clientRouter)
         this.app.use(this.apiPaths.expenses,    expenseRouter)
-        
+        this.app.use(this.apiPaths.emails,      emailRouter)
+        this.app.use(this.apiPaths.incomes, incomeRouter) 
     }
 
     listen() {

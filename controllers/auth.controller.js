@@ -8,7 +8,7 @@ const login = async (req, res = response) => {
     const { email, password } = req.body;
     try {
 
-        const usuario = await User.findOne({ where:{email} });
+        const usuario = await User.findOne({ where: { email } });
         if (!usuario) {
             return res.status(400).json({
                 ok: false,
@@ -19,7 +19,7 @@ const login = async (req, res = response) => {
         if (!validPassword) {
             return res.status(400).json({
                 ok: false,
-                msg: 'Password incorrecto'
+                msg: 'Contraseña incorrecta'
             });
         }
 
@@ -46,15 +46,15 @@ const login = async (req, res = response) => {
 
 const signup = async (req, res = response) => {
     try {
-        const {expiration_date = null, code= null } = req.body
+        const { expiration_date = null, code = null } = req.body
         const { username, email, password } = req.body
         const salt = bcrypt.genSaltSync()
         const passwordEncrypted = bcrypt.hashSync(password, salt)
         const user = new User({ username, password: passwordEncrypted, email })
         await user.save()
-        const {id_user} = user;
-        const restore_password = await Restore_password.create({code, expiration_date, id_user})
-    
+        const { id_user } = user;
+        const restore_password = await Restore_password.create({ code, expiration_date, id_user })
+
         res.status(201).json({
             ok: true,
             msg: "Usuario creado correctamente"
@@ -75,9 +75,14 @@ const validateToken = async (req, res = response) => {
     const token = await createJWT(id_user, username, email);
     res.json({
         ok: true,
-        token
+        token,
+        id: id_user,
+        name: username,
+        email
     })
 }
+
+
 
 
 

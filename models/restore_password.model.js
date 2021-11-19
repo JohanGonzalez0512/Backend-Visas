@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { db } = require('../db/connection');
-const Restore_password = db.define('incomes',{
+const Restore_password = db.define('restore_passwords',{
     id_restore_password:{
         type: DataTypes.INTEGER,
         primaryKey: true,

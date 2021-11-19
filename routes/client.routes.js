@@ -9,7 +9,8 @@ const { getAllClients,
         createClientVisaToPassport,
         updateClientPassport, 
         updateClientVisa,
-        deleteClient } = require("../controllers/client.controller");
+        deleteClient,
+        getClientsByDateTrip } = require("../controllers/client.controller");
 const { validateFileds } = require("../helpers/validateFields");
 const validateJWT = require("../middlewares/validateJWT");
 
@@ -26,6 +27,12 @@ clientRouter.get('/visa/:id_trip', [
     validateFileds,
     validateJWT
 ] , getClientsByIdTrip);
+
+clientRouter.get('/visa/:date', [
+    param('date','El fecha de creacion del viaje es obligatoria').isDate(),
+    validateFileds,
+    validateJWT
+] , getClientsByDateTrip);
 
 clientRouter.get('/pasaporte', [
     validateJWT
