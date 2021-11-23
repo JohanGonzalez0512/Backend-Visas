@@ -1,4 +1,4 @@
-const { Op } = require("sequelize");
+const { Op, QueryTypes } = require("sequelize");
 const { Client,
     Certification_type,
     Passport_info,
@@ -6,6 +6,9 @@ const { Client,
     Trip_client,
     Trip } = require("../models/index");
 const { nameFixed } = require("../helpers/regexp-name")
+const moment = require('moment');
+const { getTripsByDate } = require("../queries/queries");
+const { db } = require("../db/connection");
 
 const getAllClients = async (req, res) => {
     try {
@@ -175,10 +178,9 @@ const getClientsByDateTrip = async (req, res) => {
     try {
 
         const { date } = req.params
+       
         let { name } = req.query
-        const trip = await Trip.findOne({
-            where:{ date }
-        })
+        let [trip] = await db.query(getTripsByDate, { replacements: { date }, type: QueryTypes.SELECT })
         if (!trip) {
             return res.status(404).json({
                 ok: false,
@@ -232,7 +234,7 @@ const getClientsByDateTrip = async (req, res) => {
                 return res.status(201).json({
                     ok: true,
                     clients,
-                    id_trip
+                    trip
                 })
 
             } else {
@@ -264,9 +266,10 @@ const getClientsByDateTrip = async (req, res) => {
                     return res.status(201).json({
                         ok: true,
                         clients,
-                        id_trip
+                        trip
                     })
                 } catch (error) {
+                    console.log(error)
                     return res.status(500).json({
                         ok: false,
                         msg: 'Hable con el administrador'
@@ -281,6 +284,7 @@ const getClientsByDateTrip = async (req, res) => {
 
 
     } catch (error) {
+        console.log(error)
         return res.status(500).json({
             ok: false,
             msg: 'Hable con el administrador'
@@ -562,7 +566,7 @@ const updateClientVisa = async (req, res) => {
 
         await client.update({ name, last_name, address, birthday, phone_number });
         const visa_info = await Visa_info.findOne({
-            where: { id_client }
+            where: { id_client:id }
         })
         if (!visa_info) {
             return res.status(404).json({

@@ -28,8 +28,8 @@ clientRouter.get('/visa/:id_trip', [
     validateJWT
 ] , getClientsByIdTrip);
 
-clientRouter.get('/visa/:date', [
-    param('date','El fecha de creacion del viaje es obligatoria').isDate(),
+clientRouter.get('/visa-fecha/:date', [
+    param('date','La fecha del viaje es obligatoria').isDate(),
     validateFileds,
     validateJWT
 ] , getClientsByDateTrip);

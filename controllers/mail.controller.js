@@ -30,7 +30,7 @@ const createAndSendCode = async (req, res) => {
             if (!restore_password) {
                 return res.status(404).json({
                     ok: false,
-                    msg: 'No existe un registro con ese id'
+                    msg: 'No existe un registro con ese email'
                 });
             }
             
